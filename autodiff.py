@@ -496,10 +496,12 @@ class ReduceMeanGradientOp(Op):
         assert len(input_vals) == 2
         result = input_vals[1].copy()
         if node.reduction_indices is None:
-            return result * np.ones(input_vals[0].shape)
+            reduction_indices = range(len(input_vals[0].shape))
+        else:
+            reduction_indices = node.reduction_indices
 
         factor = 1.0
-        for reduced_ind in sorted(node.reduction_indices):
+        for reduced_ind in sorted(reduction_indices):
             factor *= input_vals[0].shape[reduced_ind]
             result = np.repeat(np.expand_dims(result, axis=reduced_ind),
                                repeats=input_vals[0].shape[reduced_ind],

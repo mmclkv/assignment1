@@ -29,7 +29,7 @@ def draw(W_val, x_t, y_t):
 
 def main():
     # Generate dataset and initial weight
-    x_t, y_t = generate_dataset(1, 1, -5, point_num=50)
+    x_t, y_t = generate_dataset(1, 1, -5, point_num=100)
 
     # add extra dim to build homogenous coordinates
     x_t = np.concatenate((x_t, np.ones((x_t.shape[0], 1))), axis=1)
@@ -53,14 +53,19 @@ def main():
     )
 
     # Update rule
-    learning_rate = 0.05
+    learning_rate = 0.5
     W_grad, = ad.gradients(cross_entropy, [W])
     W_train_step = W - learning_rate * W_grad
 
     # Training
     executor = ad.Executor([cross_entropy, y, W_train_step])
     steps = 200
+
+    plt.ion()
+
     for i in range(steps):
+        plt.cla()
+
         loss_val, y_val, W_val = executor.run(
             feed_dict = {
                 x: x_t,
@@ -68,10 +73,16 @@ def main():
                 W: W_val,
             }
         )
+
         print("Step {}: loss: {}".format(i + 1, loss_val))
 
-    # draw trained decision superplane
-    draw(W_val, x_t, y_t)
+        # draw trained decision superplane
+        draw(W_val, x_t, y_t)
+
+        plt.pause(0.1)
+
+    plt.ioff()
+    plt.show()
 
 
 if __name__ == "__main__":
