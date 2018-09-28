@@ -48,6 +48,20 @@ def test_sub():
     assert np.array_equal(grad_y1_x2_val, np.ones_like(x2_val))
     assert np.array_equal(grad_y2_x2_val, (-1) * np.ones_like(x2_val))
 
+def test_neg():
+    x2 = ad.Variable(name = "x2")
+    y = -x2
+
+    grad_y_x2, = ad.gradients(y, [x2])
+
+    executor = ad.Executor([y, grad_y_x2])
+    x2_val = 2 * np.ones(3)
+    y_val, grad_y_x2_val, = executor.run(feed_dict = {x2 : x2_val})
+
+    assert isinstance(y, ad.Node)
+    assert np.array_equal(y_val, -x2_val)
+    assert np.array_equal(grad_y_x2_val, -np.ones_like(x2_val))
+
 def test_mul_by_const():
     x2 = ad.Variable(name = "x2")
     y = 5 * x2

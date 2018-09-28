@@ -43,6 +43,9 @@ class Node(object):
             new_node = mul_byconst_op(sub_byconst_op(self, other), -1)
         return new_node
 
+    def __neg__(self):
+        return mul_byconst_op(self, -1)
+
     def __mul__(self, other):
         """TODO: Your code here"""
         if isinstance(other, Node):
@@ -426,6 +429,10 @@ class ReduceSumOp(Op):
 
     def compute(self, node, input_vals):
         assert len(input_vals) == 1
+
+        if node.reduction_indices is None:
+            return np.array(np.sum(input_vals[0]))
+
         return np.sum(input_vals[0], tuple(node.reduction_indices))
 
     def gradient(self, node, output_grad):
@@ -442,8 +449,6 @@ class ReduceSumGradientOp(Op):
 
     def compute(self, node, input_vals):
         assert len(input_vals) == 2
-        print(input_vals[0])
-        print(input_vals[1])
         result = input_vals[1].copy()
         if node.reduction_indices is None:
             return result * np.ones(input_vals[0].shape)
@@ -467,6 +472,10 @@ class ReduceMeanOp(Op):
 
     def compute(self, node, input_vals):
         assert len(input_vals) == 1
+
+        if node.reduction_indices is None:
+            return np.array(np.mean(input_vals[0]))
+
         return np.mean(input_vals[0], tuple(node.reduction_indices))
 
     def gradient(self, node, output_grad):
@@ -485,8 +494,6 @@ class ReduceMeanGradientOp(Op):
 
     def compute(self, node, input_vals):
         assert len(input_vals) == 2
-        print(input_vals[0])
-        print(input_vals[1])
         result = input_vals[1].copy()
         if node.reduction_indices is None:
             return result * np.ones(input_vals[0].shape)
